@@ -1,70 +1,73 @@
 # Sonar
 
-Sonar is a Flutter-based assistive vision prototype for visually impaired users.
-It captures camera frames, detects nearby objects, and announces concise spatial
-alerts using Russian speech and haptic feedback.
+Sonar — прототип ассистивного мобильного приложения на Flutter для людей с
+нарушением зрения. Приложение получает кадры с камеры, распознает ближайшие
+объекты и озвучивает короткие пространственные подсказки с тактильной
+обратной связью.
 
-## Safety Notice
+## Важно о безопасности
 
-This app is a prototype and can make mistakes.
-Do not use it as the only navigation aid.
-Always use your white cane and follow safe mobility practices.
+Это прототип, и он может ошибаться.
+Не используйте приложение как единственное средство навигации.
+Всегда применяйте белую трость и соблюдайте правила безопасного передвижения.
 
-## Core Features
+## Основные возможности
 
-- Real-time camera stream with throttled frame processing.
-- On-device object detection using EfficientDet Lite0 on Android.
-- Automatic fallback to ML Kit base detector if local model inference fails.
-- Spatial interpretation of detections:
-  - Direction: left, center, right.
-  - Distance buckets: near, close.
-- Voice output (`flutter_tts`, `ru-RU`) with anti-spam gating.
-- Haptic cues (`vibration`) for informational and urgent alerts.
-- Gesture controls on camera screen:
-  - Double tap: toggle silent mode.
-  - Long press: voice summary of current scene.
-- Risk acceptance and accessibility mode persistence via `shared_preferences`.
+- Поток с камеры в реальном времени с троттлингом обработки кадров.
+- Локальная детекция объектов на Android через EfficientDet Lite0.
+- Автоматический fallback на базовый ML Kit детектор при сбое локальной модели.
+- Пространственная интерпретация объектов:
+  - Направление: слева, по центру, справа.
+  - Оценка дистанции: рядом, вплотную.
+- Голосовые уведомления (`flutter_tts`, `ru-RU`) с защитой от повторного спама.
+- Вибро-сигналы (`vibration`) для информационных и срочных событий.
+- Жесты на экране камеры:
+  - Двойной тап: переключение режима тишины.
+  - Долгое нажатие: голосовая сводка по текущей сцене.
+- Сохранение принятия рисков и режимов доступности через `shared_preferences`.
 
-## Tech Stack
+## Технологии
 
 - Flutter (Dart 3)
-- State management: `flutter_riverpod` + code generation (`riverpod_annotation`)
-- Camera: `camera`
-- Vision:
-  - `tflite_flutter` (EfficientDet Lite0 local model)
-  - `google_mlkit_object_detection` fallback
-- Accessibility output:
+- Управление состоянием: `flutter_riverpod` + генерация кода (`riverpod_annotation`)
+- Камера: `camera`
+- Компьютерное зрение:
+  - `tflite_flutter` (локальная модель EfficientDet Lite0)
+  - `google_mlkit_object_detection` (резервный путь)
+- Аудио/тактильный вывод:
   - `flutter_tts`
   - `vibration`
-- Utilities:
+- Вспомогательные пакеты:
   - `permission_handler`
   - `shared_preferences`
   - `wakelock_plus`
   - `path_provider`
 
-## Architecture Overview
+## Обзор архитектуры
 
-Code is organized under `lib/` by feature and concern:
+Код в `lib/` разделен по фичам и зонам ответственности:
 
 - `lib/core/`
-  - Constants and shared services (TTS, haptics, preferences, accessibility modes).
+  - Константы и общие сервисы (TTS, вибрация, настройки, accessibility-режимы).
 - `lib/features/safety/`
-  - Initial warning/consent flow.
+  - Стартовый экран предупреждения и принятия рисков.
 - `lib/features/vision/domain/`
-  - Entities and pure logic (`SimpleObject`, spatial calculation, post-processing).
+  - Сущности и чистая логика (`SimpleObject`, spatial-вычисления, post-processing).
 - `lib/features/vision/services/`
-  - Camera orchestration, detection pipelines, isolate workers, model loading.
+  - Камера, пайплайны детекции, isolate-воркеры, загрузка модели.
 - `lib/features/vision/presentation/`
-  - Camera UI and accessibility interaction layer.
+  - UI камеры и слой взаимодействия с пользователем.
 
-### Performance Design
+### Производительность
 
-- Camera uses `ResolutionPreset.medium` and frame throttling (~500 ms cadence).
-- YUV conversions run off the UI thread via `compute(...)`.
-- EfficientDet inference runs in a dedicated isolate (`tflite_isolate_worker.dart`).
-- Flash control uses lightweight brightness sampling and hysteresis.
+- Камера запускается с `ResolutionPreset.medium`, кадры обрабатываются с
+  троттлингом (~500 мс).
+- Конвертация YUV выполняется вне UI-потока через `compute(...)`.
+- Inference EfficientDet выполняется в отдельном isolate
+  (`tflite_isolate_worker.dart`).
+- Управление вспышкой основано на легковесной оценке яркости и гистерезисе.
 
-## Project Structure
+## Структура проекта
 
 ```text
 lib/
@@ -84,44 +87,44 @@ assets/
 test/
 ```
 
-## Getting Started
+## Быстрый старт
 
-### Prerequisites
+### Требования
 
-- Flutter SDK installed and configured.
+- Установленный и настроенный Flutter SDK.
 - Android Studio / Android SDK.
-- Physical Android device recommended for camera + TFLite testing.
+- Для проверки камеры и TFLite рекомендуется физическое Android-устройство.
 
-### Install Dependencies
+### Установка зависимостей
 
 ```bash
 flutter pub get
 ```
 
-### Generate Riverpod Files
+### Генерация файлов Riverpod
 
 ```bash
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-### Run Tests
+### Запуск тестов
 
 ```bash
 flutter test
 ```
 
-### Run the App
+### Запуск приложения
 
 ```bash
 flutter run
 ```
 
-## Platform Permissions
+## Разрешения платформ
 
 ### Android
 
-This project requests camera access at runtime. Ensure camera permission exists
-in `android/app/src/main/AndroidManifest.xml`:
+Проект запрашивает доступ к камере во время выполнения. Убедитесь, что в
+`android/app/src/main/AndroidManifest.xml` есть разрешение:
 
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
@@ -129,22 +132,23 @@ in `android/app/src/main/AndroidManifest.xml`:
 
 ### iOS
 
-If running on iOS, ensure `ios/Runner/Info.plist` includes:
+Для iOS убедитесь, что в `ios/Runner/Info.plist` добавлено:
 
 ```xml
 <key>NSCameraUsageDescription</key>
-<string>Camera is required to detect nearby objects.</string>
+<string>Для обнаружения ближайших объектов требуется доступ к камере.</string>
 ```
 
-## Current Limitations
+## Текущие ограничения
 
-- Prototype-level reliability; detection confidence varies by scene/light.
-- Voice interaction text is currently Russian-focused.
-- Spatial distance is coarse (`near` / `close`) and based on bounding-box area.
-- Some services (for example volume-key stream) are scaffolded for extension.
+- Это прототип; качество детекции зависит от сцены и освещения.
+- Голосовые подсказки сейчас ориентированы в первую очередь на русский язык.
+- Оценка дистанции грубая (`рядом` / `вплотную`) и основана на площади бокса.
+- Часть сервисов (например, поток событий кнопок громкости) оставлена как
+  основа для дальнейшего расширения.
 
-## Notes for Contributors
+## Рекомендации для контрибьюторов
 
-- Keep frame processing and heavy image work off the UI thread.
-- Preserve accessibility semantics in all user-facing widgets.
-- Keep feature logic testable in `domain` and `services`.
+- Не выполняйте тяжелую обработку кадров и пиксельные операции в UI-потоке.
+- Сохраняйте accessibility-`Semantics` в пользовательских виджетах.
+- Выносите бизнес-логику в `domain`/`services` и поддерживайте покрытие тестами.
